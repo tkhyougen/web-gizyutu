@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1>課題</h1>
+
+    <% require 'pg' %>
+
+    <% connection=PG::connect(dbname:"goya") %>
+    <% connection.internal_encoding ="UTF-8" %>
+
+
+
+    <% result=connection.exec("select length,weight,quality,date from crops
+      where give_for != '自家消費';") %>
+    <% data =[] %>
+
+    <% result.each do |record| %>
+      <% data << "長さ：#{record["length"]} 重さ：#{record["weight"]} 質:#{record["quality"]} 日時:#{record["date"]}" %>
+    <% end %>
+
+    <% result2=connection.exec("select length,weight,give_for,date from crops
+      where quality !='TRUE';") %>
+    <% data2 =[] %>
+
+    <% result2.each do |record| %>
+      <% data2 << "長さ:#{record["length"]} 重さ:#{record["weight"]} 日時#{record["date"]}
+      譲渡先:#{record["give_for"]}" %>
+    <% end %>
+
+
+    <form action='goya.cgi' method='POST'>
+      譲渡先が自家消費でないものを表示します<br><br>
+      <!-- valueには、送りたいデータを代入する -->
+        <!-- name="goya"を、情報の目印とする -->
+      <input type="text" name="goya" value="<%=data.join('')%>">
+      <input type="submit" value="表示">
+
+    </form>
+
+    <form action="goya2.cgi" method="POST">
+      <br><br>
+      品質が悪いものを表示します<br><br>
+      <!-- valueには、送りたいデータを代入する -->
+        <!-- name="goya"を、情報の目印とする -->
+      <input type="text" name="goya2" value="<%=data2.join('')%>">
+      <input type="submit" value="表示">
+    </form>
+
+  </body>
+</html>
